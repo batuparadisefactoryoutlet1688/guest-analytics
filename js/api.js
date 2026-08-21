@@ -4,7 +4,7 @@
  * GANTI API_URL kalau deployment Apps Script berubah.
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbyR-IXWLWSZZ_C19RwN0PM69NKHjRTMH3LMxvsGoQsVz39DgOYwN8Yu_oRhsYyXUI9Oyg/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbzzH8Di-tVdPVcH2yTH6smk1tNy_3-_V0pEPwHHqqw84qYfW7dOcR4MxzmAhroHE2LGqw/exec';
 
 /**
  * @param {string} action  salah satu ACTIONS di backend (LOGIN, GET_DASHBOARD, dst)
