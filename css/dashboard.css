@@ -1,0 +1,49 @@
+.trend-chart-wrap {
+  position: relative;
+  height: 220px;
+}
+
+.trend-range-tabs {
+  margin-bottom: 10px;
+}
+
+.floor-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+@media (max-width: 560px) {
+  .floor-split { grid-template-columns: 1fr; }
+}
+
+.split-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.split-bar-row .bar-track {
+  flex: 1;
+  height: 8px;
+  background: #ECEAE0;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.split-bar-row .bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 20px;
+}
+
+.split-bar-row .bar-fill.accent { background: var(--accent); }
+
+.split-bar-row .bar-value {
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  width: 64px;
+  text-align: right;
+}

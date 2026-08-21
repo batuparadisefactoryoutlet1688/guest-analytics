@@ -1,0 +1,84 @@
+.compare-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.year-checks {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.year-checks label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.year-checks input[type="checkbox"] {
+  width: auto;
+}
+
+.result-compare-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+@media (max-width: 560px) {
+  .result-compare-grid { grid-template-columns: 1fr; }
+}
+
+.result-compare-grid .side {
+  text-align: center;
+}
+
+.result-compare-grid .side .period-label {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.result-compare-grid .side .total {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.result-compare-grid .vs {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: center;
+}
+
+.per-year-list {
+  margin-top: 12px;
+}
+
+.per-year-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.per-year-row:last-child { border-bottom: none; }
+
+.per-year-row .tahun {
+  font-weight: 700;
+  font-family: var(--font-display);
+}
+
+.per-year-row .angka {
+  font-family: var(--font-mono);
+  text-align: right;
+}

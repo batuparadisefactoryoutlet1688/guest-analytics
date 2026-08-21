@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — Batu Paradise Guest Analytics</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-slot"></aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="ridge-header">
+        <div class="titles">
+          <h1>Analytics</h1>
+          <div class="subtitle">Lantai 1 vs 2, Pagi vs Sore, Weekend vs Weekday</div>
+        </div>
+        <div class="ridge-svg-slot"></div>
+      </div>
+
+      <div class="card">
+        <form id="analyticsForm" class="data-toolbar">
+          <div class="field" style="margin-bottom:0;">
+            <label for="dariTanggal">Dari</label>
+            <input type="date" id="dariTanggal">
+          </div>
+          <div class="field" style="margin-bottom:0;">
+            <label for="sampaiTanggal">Sampai</label>
+            <input type="date" id="sampaiTanggal">
+          </div>
+          <button type="submit">Terapkan</button>
+        </form>
+      </div>
+
+      <div id="analyticsMessage"></div>
+
+      <div id="analyticsResult">
+        <div class="card"><span class="spinner"></span></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<nav class="bottom-nav" id="bottomnav-slot"></nav>
+
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script src="js/api.js"></script>
+<script src="js/analytics.js"></script>
+</body>
+</html>

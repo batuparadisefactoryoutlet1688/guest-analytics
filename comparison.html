@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comparison — Batu Paradise Guest Analytics</title>
+<link rel="manifest" href="manifest.json">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/comparison.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<div class="app-shell">
+  <aside class="sidebar" id="sidebar-slot"></aside>
+
+  <main class="main">
+    <div class="main-inner">
+      <div class="ridge-header">
+        <div class="titles">
+          <h1>Comparison</h1>
+          <div class="subtitle">Bandingkan jumlah tamu antar periode</div>
+        </div>
+        <div class="ridge-svg-slot"></div>
+      </div>
+
+      <div class="tabs">
+        <button type="button" data-mode="HARI" class="active">Hari</button>
+        <button type="button" data-mode="HARI_SAMA">Hari yang Sama</button>
+        <button type="button" data-mode="MINGGU">Minggu</button>
+        <button type="button" data-mode="POSISI_HARI">Posisi Hari</button>
+        <button type="button" data-mode="BULAN">Bulan</button>
+        <button type="button" data-mode="CUSTOM">Custom</button>
+      </div>
+
+      <div id="compareMessage"></div>
+
+      <div class="card">
+        <form id="compareForm">
+          <div id="formFields"></div>
+          <button type="submit" id="compareSubmit" style="margin-top:6px;">Bandingkan</button>
+        </form>
+      </div>
+
+      <div id="resultBox"></div>
+    </div>
+  </main>
+</div>
+
+<nav class="bottom-nav" id="bottomnav-slot"></nav>
+
+<script src="js/utils.js"></script>
+<script src="js/app.js"></script>
+<script src="js/api.js"></script>
+<script src="js/comparison.js"></script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+@media (max-width: 400px) {
+  .ridge-header h1 { font-size: 20px; }
+  .kpi .value { font-size: 26px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner { animation: none; border-top-color: var(--line); }
+  * { transition: none !important; animation-duration: 0.001ms !important; }
+}
