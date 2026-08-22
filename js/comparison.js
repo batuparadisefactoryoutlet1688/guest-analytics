@@ -194,11 +194,15 @@ async function onSubmit(e) {
   renderResult(currentMode, res.data);
 }
 
+// Biru dulu, lalu hijau, baru warna lain kalau serinya lebih dari 2 (mis. bandingkan banyak tahun sekaligus).
+const CHART_PALETTE = ['#2F6FB0', '#33513A', '#C08A34', '#A8433A', '#6B4FA0', '#1F8A8C'];
+let comparisonChartInstance = null;
+
 function renderResult(mode, data) {
   const resultBox = document.getElementById('resultBox');
 
   if (data.perTahun) {
-    resultBox.innerHTML = '<div class="card"><div class="card-title">Hasil per Tahun</div>' +
+    const summaryHtml = '<div class="card"><div class="card-title">Hasil per Tahun</div>' +
       '<div class="per-year-list">' +
       data.perTahun.map(function (row) {
         const label = row.tanggal ? (row.tahun + ' &middot; ' + row.tanggal) : row.tahun;
@@ -208,11 +212,19 @@ function renderResult(mode, data) {
           '</div></div>';
       }).join('') +
       '</div></div>';
+
+    resultBox.innerHTML = summaryHtml + chartCardHtml();
+
+    const seriesList = data.perTahun
+      .filter(function (row) { return row.detail && row.detail.length; })
+      .map(function (row) { return { name: String(row.tahun), data: row.detail }; });
+
+    renderWaveChart(seriesList);
     return;
   }
 
   // mode HARI / BULAN / CUSTOM -> buildHasilDua
-  resultBox.innerHTML = '<div class="card">' +
+  const summaryHtml = '<div class="card">' +
     '<div class="result-compare-grid">' +
     '<div class="side"><div class="period-label">' + data.a.label + '</div><div class="total mono">' + formatAngka(data.a.total) + '</div></div>' +
     '<div class="vs">VS<br>selisih<br>' + formatAngka(data.difference) + '</div>' +
@@ -222,4 +234,87 @@ function renderResult(mode, data) {
     '<span class="delta ' + deltaClass(data.growthPercent) + '">' + formatPersen(data.growthPercent) + '</span>' +
     '</div>' +
     '</div>';
+
+  resultBox.innerHTML = summaryHtml + chartCardHtml();
+
+  const seriesList = [];
+  if (data.chart && data.chart.seriesA && data.chart.seriesA.length) {
+    seriesList.push({ name: data.a.label, data: data.chart.seriesA });
+  }
+  if (data.chart && data.chart.seriesB && data.chart.seriesB.length) {
+    seriesList.push({ name: data.b.label, data: data.chart.seriesB });
+  }
+  renderWaveChart(seriesList);
+}
+
+function chartCardHtml() {
+  return '<div class="card"><div class="card-title">Grafik Tren</div>' +
+    '<div class="compare-chart-wrap"><canvas id="comparisonChart"></canvas></div></div>';
+}
+
+/**
+ * seriesList: [{ name, data: [{tanggal, total}, ...] }, ...]
+ * Digambar sebagai line chart (wave) dengan sumbu-x = posisi relatif titik ke-N,
+ * supaya seri dengan tanggal berbeda (mis. tahun berbeda) tetap bisa ditumpuk sejajar.
+ */
+function renderWaveChart(seriesList) {
+  const canvas = document.getElementById('comparisonChart');
+  if (!canvas || !seriesList.length) return;
+
+  const datasets = seriesList.map(function (s, idx) {
+    const color = CHART_PALETTE[idx % CHART_PALETTE.length];
+    return {
+      label: s.name,
+      data: s.data.map(function (d, i) { return { x: i + 1, y: d.total, tanggal: d.tanggal }; }),
+      borderColor: color,
+      backgroundColor: hexToRgba(color, 0.1),
+      borderWidth: 2.5,
+      pointRadius: 3,
+      pointBackgroundColor: color,
+      fill: seriesList.length <= 2,
+      tension: 0.35
+    };
+  });
+
+  if (comparisonChartInstance) comparisonChartInstance.destroy();
+
+  comparisonChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'line',
+    data: { datasets: datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      parsing: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+        tooltip: {
+          callbacks: {
+            title: function (items) {
+              if (!items.length) return '';
+              const item = items[0];
+              const point = datasets[item.datasetIndex].data[item.dataIndex];
+              return point.tanggal || ('Titik ke-' + point.x);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'linear',
+          ticks: { stepSize: 1, callback: function (val) { return 'Titik ' + val; } },
+          grid: { display: false }
+        },
+        y: { beginAtZero: true, grid: { color: '#EDEAE0' } }
+      }
+    }
+  });
+}
+
+function hexToRgba(hex, alpha) {
+  const clean = hex.replace('#', '');
+  const r = parseInt(clean.substring(0, 2), 16);
+  const g = parseInt(clean.substring(2, 4), 16);
+  const b = parseInt(clean.substring(4, 6), 16);
+  return 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
 }
