@@ -82,3 +82,9 @@
   font-family: var(--font-mono);
   text-align: right;
 }
+
+.compare-chart-wrap {
+  position: relative;
+  height: 260px;
+  margin-top: 6px;
+}
