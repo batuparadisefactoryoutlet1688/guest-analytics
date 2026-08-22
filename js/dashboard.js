@@ -26,19 +26,20 @@ async function loadDashboard() {
   }
 
   const d = res.data;
-  wrap.innerHTML = renderKpiCard('Hari Ini', d.today.total, d.today.growthPercent) +
-    renderKpiCard('Bulan Ini', d.thisMonth.total, d.thisMonth.growthPercent) +
-    renderKpiCard('Tahun Ini', d.thisYear.total, d.thisYear.growthPercent);
+  wrap.innerHTML = renderKpiCard('Hari Ini', d.today.total, d.today.growthPercent, 'dibanding kemarin') +
+    renderKpiCard('Bulan Ini', d.thisMonth.total, d.thisMonth.growthPercent, 'dibanding bulan kemarin') +
+    renderKpiCard('Tahun Ini', d.thisYear.total, d.thisYear.growthPercent, 'dibanding tahun kemarin');
 
   renderTrendChart(d.trend7hari);
 }
 
-function renderKpiCard(label, total, growth) {
+function renderKpiCard(label, total, growth, pembandingLabel) {
   return '' +
     '<div class="kpi">' +
     '<div class="label">' + label + '</div>' +
     '<div class="value mono">' + formatAngka(total) + '</div>' +
     '<div class="delta ' + deltaClass(growth) + '">' + formatPersen(growth) + '</div>' +
+    '<div class="kpi-note">(' + pembandingLabel + ')</div>' +
     '</div>';
 }
 
