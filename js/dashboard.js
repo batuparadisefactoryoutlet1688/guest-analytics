@@ -6,7 +6,6 @@
 let trendChartInstance = null;
 
 document.addEventListener('DOMContentLoaded', async function () {
-  if (!requireAuth()) return;
   renderShell('dashboard.html');
   document.querySelectorAll('.ridge-svg-slot').forEach(function (el) { el.innerHTML = ridgeSvg(); });
 
