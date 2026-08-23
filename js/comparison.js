@@ -14,7 +14,6 @@ const HARI_LIST = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu
 let currentMode = 'HARI';
 
 document.addEventListener('DOMContentLoaded', function () {
-  if (!requireAuth()) return;
   renderShell('comparison.html');
   document.querySelectorAll('.ridge-svg-slot').forEach(function (el) { el.innerHTML = ridgeSvg(); });
 
