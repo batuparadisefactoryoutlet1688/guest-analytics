@@ -4,9 +4,9 @@
  */
 
 document.addEventListener('DOMContentLoaded', function () {
-  // Kalau sudah login, langsung ke dashboard.
-  if (getToken()) {
-    window.location.href = 'dashboard.html';
+  // Kalau sudah login sebagai ADMIN, langsung ke Input (tujuan orang login).
+  if (getToken() && isAdmin()) {
+    window.location.href = 'input.html';
     return;
   }
 
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', function () {
       localStorage.setItem(STORAGE_KEYS.TOKEN, res.data.token);
       localStorage.setItem(STORAGE_KEYS.ROLE, res.data.role);
       localStorage.setItem(STORAGE_KEYS.NAMA, res.data.nama || '');
-      window.location.href = 'dashboard.html';
+      window.location.href = (res.data.role === 'ADMIN') ? 'input.html' : 'dashboard.html';
     } else {
       showMessage(msgBox, (res && res.message) || 'Login gagal.', 'error');
       passwordInput.value = '';
