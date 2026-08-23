@@ -4,7 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', async function () {
-  if (!requireAuth()) return;
   renderShell('analytics.html');
   document.querySelectorAll('.ridge-svg-slot').forEach(function (el) { el.innerHTML = ridgeSvg(); });
 
