@@ -104,6 +104,7 @@ const NAV_ITEMS = [
 ];
 
 function renderShell(activeHref) {
+  const loggedIn = !!getToken();
   const admin = isAdmin();
   const items = NAV_ITEMS.filter(function (i) { return !i.adminOnly || admin; });
 
@@ -117,12 +118,19 @@ function renderShell(activeHref) {
       '<span class="icon">' + i.icon + '</span>' + i.label + '</a>';
   }).join('');
 
+  const sidebarUserbox = loggedIn
+    ? '<div class="userbox">' + (getNama() || getRole()) + ' &middot; ' + getRole() +
+      '<div><button class="secondary" onclick="doLogoutAndRedirect()" style="width:100%;margin-top:6px;">Keluar</button></div></div>'
+    : '<div class="userbox">Mode Lihat Saja' +
+      '<div><a href="index.html"><button style="width:100%;margin-top:6px;">Masuk sebagai Admin</button></a></div></div>';
+
   document.getElementById('sidebar-slot').innerHTML =
     '<div class="brand">Batu Paradise<small>Guest Analytics</small></div>' +
-    '<nav>' + sidebarLinks + '</nav>' +
-    '<div class="userbox">' + (getNama() || getRole()) + ' &middot; ' + getRole() +
-    '<div><button class="secondary" onclick="doLogoutAndRedirect()" style="width:100%;margin-top:6px;">Keluar</button></div>' +
-    '</div>';
+    '<nav>' + sidebarLinks +
+    (loggedIn ? '' : '<a href="index.html"><span>&#128274;</span><span>Masuk</span></a>') +
+    '</nav>' +
+    sidebarUserbox;
 
-  document.getElementById('bottomnav-slot').innerHTML = bottomLinks;
+  document.getElementById('bottomnav-slot').innerHTML = bottomLinks +
+    (loggedIn ? '' : '<a href="index.html"><span class="icon">&#128274;</span>Masuk</a>');
 }
