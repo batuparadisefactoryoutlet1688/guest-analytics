@@ -15,10 +15,10 @@ function getNama() { return localStorage.getItem(STORAGE_KEYS.NAMA); }
 
 function isAdmin() { return getRole() === 'ADMIN'; }
 
-/** Panggil di setiap halaman selain login. Redirect ke index.html kalau belum login. */
+/** Panggil di setiap halaman yang wajib login. Redirect ke login.html kalau belum login. */
 function requireAuth() {
   if (!getToken()) {
-    window.location.href = 'index.html';
+    window.location.href = 'login.html';
     return false;
   }
   return true;
@@ -39,7 +39,7 @@ function doLogoutAndRedirect() {
     localStorage.removeItem(STORAGE_KEYS.TOKEN);
     localStorage.removeItem(STORAGE_KEYS.ROLE);
     localStorage.removeItem(STORAGE_KEYS.NAMA);
-    window.location.href = 'index.html';
+    window.location.href = 'dashboard.html';
   });
 }
 
@@ -122,15 +122,15 @@ function renderShell(activeHref) {
     ? '<div class="userbox">' + (getNama() || getRole()) + ' &middot; ' + getRole() +
       '<div><button class="secondary" onclick="doLogoutAndRedirect()" style="width:100%;margin-top:6px;">Keluar</button></div></div>'
     : '<div class="userbox">Mode Lihat Saja' +
-      '<div><a href="index.html"><button style="width:100%;margin-top:6px;">Masuk sebagai Admin</button></a></div></div>';
+      '<div><a href="login.html"><button style="width:100%;margin-top:6px;">Masuk sebagai Admin</button></a></div></div>';
 
   document.getElementById('sidebar-slot').innerHTML =
     '<div class="brand">Batu Paradise<small>Guest Analytics</small></div>' +
     '<nav>' + sidebarLinks +
-    (loggedIn ? '' : '<a href="index.html"><span>&#128274;</span><span>Masuk</span></a>') +
+    (loggedIn ? '' : '<a href="login.html"><span>&#128274;</span><span>Masuk</span></a>') +
     '</nav>' +
     sidebarUserbox;
 
   document.getElementById('bottomnav-slot').innerHTML = bottomLinks +
-    (loggedIn ? '' : '<a href="index.html"><span class="icon">&#128274;</span>Masuk</a>');
+    (loggedIn ? '' : '<a href="login.html"><span class="icon">&#128274;</span>Masuk</a>');
 }
