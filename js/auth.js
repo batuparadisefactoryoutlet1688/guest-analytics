@@ -1,6 +1,6 @@
 /**
  * AUTH.JS
- * Logic untuk index.html (halaman login).
+ * Logic untuk login.html (halaman login).
  */
 
 document.addEventListener('DOMContentLoaded', function () {
