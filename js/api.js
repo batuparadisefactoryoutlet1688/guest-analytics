@@ -13,7 +13,7 @@
  * menyatu di URL sejak awal.
  */
 
-const API_URL = 'https://script.google.com/macros/s/AKfycbygPINTDmVzmgnSMiMov96EkZLpy55k6xuodwWfVgGcNg3BJkVkOEkCZ494rrywOnAeKA/exec';
+const API_URL = 'https://script.google.com/macros/s/AKfycbysqc3NzJ4wPMiIBcN2seAQ-NeDRVhBXod2VCUf6hFcXIWeRq65Nqyw0u0lFfw9QuB31w/exec';
 
 /**
  * @param {string} action  salah satu ACTIONS di backend (LOGIN, GET_DASHBOARD, dst)
