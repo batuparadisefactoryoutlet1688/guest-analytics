@@ -88,3 +88,9 @@
   height: 260px;
   margin-top: 6px;
 }
+
+.compare-chart-wrap-bar {
+  position: relative;
+  height: 140px;
+  margin-top: 6px;
+}
