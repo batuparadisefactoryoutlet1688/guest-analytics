@@ -190,21 +190,25 @@ async function onSubmit(e) {
     return;
   }
 
-  renderResult(currentMode, res.data);
+  // Simpan namaHari yang dipilih (dipakai HARI_SAMA untuk label titik chart, mis. "Sabtu 1").
+  renderResult(currentMode, res.data, payload);
 }
 
 // Biru dulu, lalu hijau, baru warna lain kalau serinya lebih dari 2 (mis. bandingkan banyak tahun sekaligus).
 const CHART_PALETTE = ['#2F6FB0', '#33513A', '#C08A34', '#A8433A', '#6B4FA0', '#1F8A8C'];
 let comparisonChartInstance = null;
 
-function renderResult(mode, data) {
+function renderResult(mode, data, payload) {
   const resultBox = document.getElementById('resultBox');
 
   if (data.perTahun) {
     const summaryHtml = '<div class="card"><div class="card-title">Hasil per Tahun</div>' +
       '<div class="per-year-list">' +
       data.perTahun.map(function (row) {
-        const label = row.tanggal ? (row.tahun + ' &middot; ' + row.tanggal) : row.tahun;
+        let label = row.tahun;
+        if (row.tanggal) label = row.tahun + ' &middot; ' + row.tanggal;
+        else if (row.dari && row.sampai) label = row.tahun + ' &middot; ' + row.dari + ' - ' + row.sampai;
+
         return '<div class="per-year-row"><div class="tahun">' + label + '</div>' +
           '<div class="angka">' + formatAngka(row.total) +
           (row.average !== undefined ? '<br><span style="font-size:11px;color:var(--muted);">avg ' + formatAngka(row.average) + '</span>' : '') +
@@ -218,7 +222,8 @@ function renderResult(mode, data) {
       .filter(function (row) { return row.detail && row.detail.length; })
       .map(function (row) { return { name: String(row.tahun), data: row.detail }; });
 
-    renderWaveChart(seriesList);
+    const xLabels = buildXLabels(mode, payload, seriesList);
+    renderWaveChart(seriesList, xLabels);
     return;
   }
 
@@ -234,6 +239,13 @@ function renderResult(mode, data) {
     '</div>' +
     '</div>';
 
+  // HARI -> bar horizontal (cuma 2 angka, gak perlu wave)
+  if (mode === 'HARI') {
+    resultBox.innerHTML = summaryHtml + barChartCardHtml();
+    renderBarChart(data.a.label, data.a.total, data.b.label, data.b.total);
+    return;
+  }
+
   resultBox.innerHTML = summaryHtml + chartCardHtml();
 
   const seriesList = [];
@@ -243,7 +255,35 @@ function renderResult(mode, data) {
   if (data.chart && data.chart.seriesB && data.chart.seriesB.length) {
     seriesList.push({ name: data.b.label, data: data.chart.seriesB });
   }
-  renderWaveChart(seriesList);
+
+  const xLabels = buildXLabels(mode, payload, seriesList);
+  renderWaveChart(seriesList, xLabels);
+}
+
+/**
+ * Bikin label sumbu-x sesuai mode, supaya "Titik 1, 2, 3" jadi lebih bermakna:
+ * - HARI_SAMA -> nama hari yang dipilih + urutan ("Sabtu 1", "Sabtu 2", ...)
+ * - MINGGU    -> nama hari Senin..Minggu (karena tiap titik = 1 hari dalam minggu itu)
+ * - BULAN     -> angka tanggal saja ("1", "2", ... "31"), tanpa kata "Titik"
+ * - lainnya (POSISI_HARI, CUSTOM) -> "Titik 1", "Titik 2", ... (default)
+ */
+function buildXLabels(mode, payload, seriesList) {
+  const maxLen = seriesList.reduce(function (m, s) { return Math.max(m, s.data.length); }, 0);
+
+  if (mode === 'HARI_SAMA' && payload && payload.namaHari) {
+    return Array.from({ length: maxLen }, function (_, i) { return payload.namaHari + ' ' + (i + 1); });
+  }
+
+  if (mode === 'MINGGU') {
+    const namaHariSenin = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+    return Array.from({ length: maxLen }, function (_, i) { return namaHariSenin[i] || ('Hari ' + (i + 1)); });
+  }
+
+  if (mode === 'BULAN') {
+    return Array.from({ length: maxLen }, function (_, i) { return String(i + 1); });
+  }
+
+  return Array.from({ length: maxLen }, function (_, i) { return 'Titik ' + (i + 1); });
 }
 
 function chartCardHtml() {
@@ -251,12 +291,18 @@ function chartCardHtml() {
     '<div class="compare-chart-wrap"><canvas id="comparisonChart"></canvas></div></div>';
 }
 
+function barChartCardHtml() {
+  return '<div class="card"><div class="card-title">Perbandingan</div>' +
+    '<div class="compare-chart-wrap-bar"><canvas id="comparisonChart"></canvas></div></div>';
+}
+
 /**
  * seriesList: [{ name, data: [{tanggal, total}, ...] }, ...]
- * Digambar sebagai line chart (wave) dengan sumbu-x = posisi relatif titik ke-N,
- * supaya seri dengan tanggal berbeda (mis. tahun berbeda) tetap bisa ditumpuk sejajar.
+ * xLabels: array label kategori sumbu-x, panjangnya = titik data terbanyak antar seri.
+ * Digambar sebagai line chart (wave) memakai sumbu kategori (bukan angka polos),
+ * supaya labelnya bisa "Sabtu 1", "Senin", "1", dst sesuai mode.
  */
-function renderWaveChart(seriesList) {
+function renderWaveChart(seriesList, xLabels) {
   const canvas = document.getElementById('comparisonChart');
   if (!canvas || !seriesList.length) return;
 
@@ -264,47 +310,75 @@ function renderWaveChart(seriesList) {
     const color = CHART_PALETTE[idx % CHART_PALETTE.length];
     return {
       label: s.name,
-      data: s.data.map(function (d, i) { return { x: i + 1, y: d.total, tanggal: d.tanggal }; }),
+      data: s.data.map(function (d) { return d.total; }),
       borderColor: color,
       backgroundColor: hexToRgba(color, 0.1),
       borderWidth: 2.5,
       pointRadius: 3,
       pointBackgroundColor: color,
       fill: seriesList.length <= 2,
+      spanGaps: true,
       tension: 0.35
     };
   });
+
+  // Simpan tanggal asli tiap titik (buat tooltip) di luar dataset supaya gak ikut di-parse Chart.js.
+  const tanggalPerSeri = seriesList.map(function (s) { return s.data.map(function (d) { return d.tanggal; }); });
 
   if (comparisonChartInstance) comparisonChartInstance.destroy();
 
   comparisonChartInstance = new Chart(canvas.getContext('2d'), {
     type: 'line',
-    data: { datasets: datasets },
+    data: { labels: xLabels, datasets: datasets },
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      parsing: false,
       interaction: { mode: 'index', intersect: false },
       plugins: {
         legend: { display: true, position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
         tooltip: {
           callbacks: {
-            title: function (items) {
-              if (!items.length) return '';
-              const item = items[0];
-              const point = datasets[item.datasetIndex].data[item.dataIndex];
-              return point.tanggal || ('Titik ke-' + point.x);
+            afterLabel: function (item) {
+              const tgl = tanggalPerSeri[item.datasetIndex] && tanggalPerSeri[item.datasetIndex][item.dataIndex];
+              return tgl ? tgl : '';
             }
           }
         }
       },
       scales: {
-        x: {
-          type: 'linear',
-          ticks: { stepSize: 1, callback: function (val) { return 'Titik ' + val; } },
-          grid: { display: false }
-        },
+        x: { grid: { display: false } },
         y: { beginAtZero: true, grid: { color: '#EDEAE0' } }
+      }
+    }
+  });
+}
+
+/** Bar horizontal 2 batang: A di atas, B di bawah. Dipakai khusus mode HARI. */
+function renderBarChart(labelA, totalA, labelB, totalB) {
+  const canvas = document.getElementById('comparisonChart');
+  if (!canvas) return;
+
+  if (comparisonChartInstance) comparisonChartInstance.destroy();
+
+  comparisonChartInstance = new Chart(canvas.getContext('2d'), {
+    type: 'bar',
+    data: {
+      labels: [labelA, labelB],
+      datasets: [{
+        data: [totalA, totalB],
+        backgroundColor: [CHART_PALETTE[0], CHART_PALETTE[1]],
+        borderRadius: 8,
+        barThickness: 36
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, grid: { color: '#EDEAE0' } },
+        y: { grid: { display: false }, ticks: { font: { size: 12.5 } } }
       }
     }
   });
